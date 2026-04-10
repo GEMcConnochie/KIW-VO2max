@@ -89,8 +89,8 @@ def instruct_pg():
             st.markdown("""
             **Primary Reference:**
 
-            Sitko, S., Cirer-Sastre, R., Corbi, F., & López-Laval, I. (2022). 
-            Five-Minute Power-Based Test to Predict Maximal Oxygen Consumption in Road Cycling. 
+            Sitko, S., Cirer-Sastre, R., Corbi, F., & López-Laval, I. (2022).
+            Five-Minute Power-Based Test to Predict Maximal Oxygen Consumption in Road Cycling.
             *International Journal of Sports Physiology and Performance*, 17(1), 9–15.
             https://doi.org/10.1123/ijspp.2020-0923
             """)
@@ -132,8 +132,8 @@ def instruct_pg():
             st.markdown("""
             **Riferimento Principale:**
 
-            Sitko, S., Cirer-Sastre, R., Corbi, F., & López-Laval, I. (2022). 
-            Five-Minute Power-Based Test to Predict Maximal Oxygen Consumption in Road Cycling. 
+            Sitko, S., Cirer-Sastre, R., Corbi, F., & López-Laval, I. (2022).
+            Five-Minute Power-Based Test to Predict Maximal Oxygen Consumption in Road Cycling.
             *International Journal of Sports Physiology and Performance*, 17(1), 9–15.
             https://doi.org/10.1123/ijspp.2020-0923
             """)
@@ -153,7 +153,7 @@ if not st.session_state.authenticated:
         st.rerun()
     elif pw:
         st.error("❌ Incorrect password" if language == "English" else "❌ Password errata")
-    st.stop()
+
 
 # ─── Main Layout ──────────────────────────────────────────────────
 # Header row
@@ -275,6 +275,7 @@ if input_method == "W/kg" or (language == "Italiano" and input_method == "W/kg")
             max_value=15.0,
             value=st.session_state.get("power_input_wkg", 5.0),
             step=0.1,
+            disabled= not st.session_state.authenticated
         )
         st.session_state["power_input_wkg"] = power_input
         calculated_wkg = power_input
@@ -304,6 +305,7 @@ else:  # Watts + Weight input method
             max_value=2000,
             value=st.session_state.get("power_input_watts", 400),
             step=10,
+            disabled=not st.session_state.authenticated
         )
         st.session_state["power_input_watts"] = watts
 
@@ -314,6 +316,7 @@ else:  # Watts + Weight input method
             max_value=150.0,
             value=st.session_state.get("body_weight", 70.0),
             step=0.1,
+            disabled=not st.session_state.authenticated
         )
         st.session_state["body_weight"] = weight
 
@@ -413,3 +416,4 @@ with fc3:
         </div>""",
         unsafe_allow_html=True
     )
+
