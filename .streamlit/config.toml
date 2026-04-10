@@ -1,0 +1,8 @@
+[theme]
+baseFontSize =16
+headingFont4 =  "Fjalla One:https://fonts.googleapis.com/css2?family=Fjalla+One&display=swap"
+headingFont = "Roboto:https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap"
+headingFont2 =  "Gothic One:https://fonts.googleapis.com/css2?family=Fjalla+One&family=Pathway+Gothic+One&display=swap"
+headingFontw= "Bebas Neue:https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap"
+fontb = "Roboto:https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap"
+titleFont = "Bebas Neue:https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap"

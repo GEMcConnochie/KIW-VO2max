@@ -1,0 +1,10 @@
+streamlit==1.55.0
+pandas>=2.1
+numpy>=1.26
+plotly>=6.0
+scipy>=1.11
+scikit-learn
+statsmodels
+pwlf
+lactate-thresholds==0.3.8
+python-dotenv
