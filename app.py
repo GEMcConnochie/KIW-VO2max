@@ -76,7 +76,6 @@ def instruct_pg():
 
             **Requirements:**
             - Calibrated power meter
-            - Stationary bike or indoor trainer
             - 72 hours recovery from previous intense training
 
             **Protocol:**
@@ -87,8 +86,6 @@ def instruct_pg():
 
         with st.expander("**References**"):
             st.markdown("""
-            **Primary Reference:**
-
             Sitko, S., Cirer-Sastre, R., Corbi, F., & López-Laval, I. (2022).
             Five-Minute Power-Based Test to Predict Maximal Oxygen Consumption in Road Cycling.
             *International Journal of Sports Physiology and Performance*, 17(1), 9–15.
@@ -130,8 +127,7 @@ def instruct_pg():
 
         with st.expander("**Riferimenti**"):
             st.markdown("""
-            **Riferimento Principale:**
-
+                        
             Sitko, S., Cirer-Sastre, R., Corbi, F., & López-Laval, I. (2022).
             Five-Minute Power-Based Test to Predict Maximal Oxygen Consumption in Road Cycling.
             *International Journal of Sports Physiology and Performance*, 17(1), 9–15.
