@@ -50,10 +50,58 @@ page_labels = {
 }
 
 
+# ─── CI Range Bar Component ───────────────────────────────────────
+def render_ci_range_bar(vo2max, ci_lower, ci_upper, language="English"):
+    padding = (ci_upper - ci_lower) * 1.5
+    axis_min = ci_lower - padding
+    axis_max = ci_upper + padding
+
+    def to_pct(v):
+        return (v - axis_min) / (axis_max - axis_min) * 100
+
+    center_pct = to_pct(vo2max)
+    lower_pct = to_pct(ci_lower)
+    upper_pct = to_pct(ci_upper)
+    band_width = upper_pct - lower_pct
+
+    if language == "English":
+        title = "YOUR ESTIMATED VO2MAX"
+        range_label = f"True value between <b>{ci_lower:.1f}</b> and <b>{ci_upper:.1f} ml/min/kg with 95% certainty</b>"
+
+        estimate_label = "Best estimate"
+        band_legend = "Realistic range (95%)"
+    else:
+        title = "IL TUO VO2MAX STIMATO"
+        range_label = f"Il valore reale è quasi certamente tra <b>{ci_lower:.1f}</b> e <b>{ci_upper:.1f} ml/min/kg</b>"
+
+        estimate_label = "Stima migliore"
+        band_legend = "Intervallo realistico (95%)"
+
+    html = (
+        '<div style="background:#f8f9fa;border-left:4px solid #2c3e50;border-radius:8px;padding:28px 32px 24px 32px;margin-top:8px;">'
+        f'<p style="margin:0 0 4px 0;font-size:20px;color:#888;text-transform:uppercase;letter-spacing:1.2px;font-weight:700;">{title}</p>'
+        f'<p style="margin:0 0 6px 0;font-size:54px;font-weight:700;color:#1a1a1a;line-height:1;">{vo2max:.1f} <span style="font-size:18px;font-weight:400;color:#555;">ml/min/kg</span></p>'
+        f'<p style="margin:0 0 20px 0;font-size:14px;color:#444;">{range_label}</p>'
+        '<div style="position:relative;height:56px;margin-bottom:24px;">'
+        '<div style="position:absolute;top:22px;left:0;right:0;height:8px;background:#dde1e6;border-radius:4px;"></div>'
+        f'<div style="position:absolute;top:18px;left:{lower_pct:.1f}%;width:{band_width:.1f}%;height:16px;background:linear-gradient(90deg,#b0bec5,#78909c,#b0bec5);border-radius:8px;opacity:0.75;"></div>'
+        f'<div style="position:absolute;top:14px;left:calc({center_pct:.1f}% - 12px);width:24px;height:24px;background:#2c3e50;border:3px solid white;border-radius:50%;box-shadow:0 2px 6px rgba(0,0,0,0.25);"></div>'
+        f'<div style="position:absolute;top:42px;left:{lower_pct:.1f}%;transform:translateX(-50%);font-size:11px;color:#777;white-space:nowrap;">{ci_lower:.1f}</div>'
+        f'<div style="position:absolute;top:42px;left:{upper_pct:.1f}%;transform:translateX(-50%);font-size:11px;color:#777;white-space:nowrap;">{ci_upper:.1f}</div>'
+        '</div>'
+        '<div style="display:flex;gap:24px;margin-bottom:16px;align-items:center;flex-wrap:wrap;">'
+        f'<div style="display:flex;align-items:center;gap:8px;"><div style="width:14px;height:14px;background:#2c3e50;border-radius:50%;border:2px solid white;box-shadow:0 1px 4px rgba(0,0,0,0.2);flex-shrink:0;"></div><span style="font-size:12px;color:#555;">{estimate_label}</span></div>'
+        f'<div style="display:flex;align-items:center;gap:8px;"><div style="width:28px;height:10px;background:#78909c;border-radius:5px;opacity:0.75;flex-shrink:0;"></div><span style="font-size:12px;color:#555;">{band_legend}</span></div>'
+        '</div>'
+        '</div>'
+    )
+    st.markdown(html, unsafe_allow_html=True)
+
+
 # ─── Instructions Page ─────────────────────────────────────────────
 def instruct_pg():
     if language == "English":
-        with st.expander("**About This Calculator**", expanded=True):
+        with st.expander("**About This Calculator**"):
             st.markdown("""
             This calculator estimates your **VO2max** (maximum oxygen consumption) using the **Sitko et al. (2022)** equation:
 
@@ -61,13 +109,8 @@ def instruct_pg():
             VO2max (ml/min/kg) = 16.61 + 8.87 × 5-minute power output (W/kg)
             ```
 
-            This equation was validated in a study of **46 road cyclists** (11 professionals) with VO2max ranging from ~45 to ~80 ml/min/kg.
-
-            **Accuracy:** The equation can estimate VO2max within a **±3% error 95% of the time**.
-
-            For example, if your 5-minute power is 6.8 W/kg:
-            - VO2max = 16.61 + (8.87 × 6.8) = **76.9 ml/min/kg**
-            - 95% Confidence Interval: **74.6 – 79.2 ml/min/kg**
+            This equation was validated in a study of **46 road cyclists** (11 professionals) with VO2max ranging from ~45 to ~80 ml/min/kg.  
+            **Accuracy:** The equation can estimate VO2max within a ±3% error 95% of the time.
             """)
 
         with st.expander("**How to Perform Your Test**"):
@@ -80,7 +123,12 @@ def instruct_pg():
 
             **Protocol:**
             After a sufficient warm-up, perform a **5-minute all-out effort** and record the **average power (Watts)** for the full 5 minutes.
+            """)
+        with st.expander("**Understanding Your Result**"):
+            st.markdown("""
+            The calculator gives you a best estimate of VO2max, along with a **95% confidence interval**, a the window your true VO2max almost certainly sits within.
 
+            **Example**: If your estimate is 61.0 ml/min/kg, the confidence interval indicates that your true VO2max is between 59.1 and 62.8 ml/min/kg. with 95% certainty.
 
             """)
 
@@ -93,7 +141,7 @@ def instruct_pg():
             """)
 
     else:  # Italiano
-        with st.expander("**Informazioni sul Calcolatore**", expanded=True):
+        with st.expander("**Informazioni sul Calcolatore**"):
             st.markdown("""
             Questo calcolatore stima il tuo **VO2max** (consumo massimo di ossigeno) utilizzando l'equazione **Sitko et al. (2022)**:
 
@@ -102,12 +150,8 @@ def instruct_pg():
             ```
 
             Questa equazione è stata validata su uno studio di **46 ciclisti su strada** (11 professionisti) con VO2max compresi tra ~45 e ~80 ml/min/kg.
-
-            **Accuratezza:** L'equazione può stimare il VO2max con un errore di **±3% nel 95% dei casi**.
-
-            Ad esempio, se la tua potenza di 5 minuti è 6.8 W/kg:
-            - VO2max = 16.61 + (8.87 × 6.8) = **76.9 ml/min/kg**
-            - Intervallo di confidenza al 95%: **74.6 – 79.2 ml/min/kg**
+            
+            **Precisione:** L'equazione può stimare il VO2max con un errore di ±3% nel 95% dei casi.
             """)
 
         with st.expander("**Come Eseguire il Test**"):
@@ -121,13 +165,16 @@ def instruct_pg():
 
             **Protocollo:**
             Dopo un riscaldamento sufficiente, esegui uno **sforzo massimale di 5 minuti** e registra la **potenza media (Watt)** per l'intera durata.
-
-
             """)
+
+        with st.expander("**Interpretazione del risultato**"):
+            st.markdown("""
+            Il calcolatore fornisce una stima ottimale del VO2max con un **intervallo di confidenza del 95%**, ovvero l'intervallo entro il quale il tuo vero VO2max si trova quasi certamente.
+
+**Esempio**: se la tua stima è di 61,0 ml/min/kg, l'intervallo di confidenza indica che il tuo vero VO2max è compreso tra 59,1 e 62,8 ml/min/kg con una certezza del 95%.                """)
 
         with st.expander("**Riferimenti**"):
             st.markdown("""
-                        
             Sitko, S., Cirer-Sastre, R., Corbi, F., & López-Laval, I. (2022).
             Five-Minute Power-Based Test to Predict Maximal Oxygen Consumption in Road Cycling.
             *International Journal of Sports Physiology and Performance*, 17(1), 9–15.
@@ -141,7 +188,6 @@ if not st.session_state.authenticated:
         "Enter KIW subscriber password to edit input data:" if language == "English"
         else "Inserisci la password ricevuta per utilizzare questa app:",
         type="password", key="pw_input"
-
     )
     if pw == SHARED_PASSWORD:
         st.session_state.authenticated = True
@@ -152,7 +198,6 @@ if not st.session_state.authenticated:
 
 
 # ─── Main Layout ──────────────────────────────────────────────────
-# Header row
 hc1, hc2 = st.columns([1, 7])
 
 with hc1:
@@ -261,8 +306,7 @@ with col_toggle_a:
 
 # Input fields based on selected method
 if input_method == "W/kg" or (language == "Italiano" and input_method == "W/kg"):
-    # W/kg input method
-    col1, _, col2 = st.columns([1.5,1.5, 1])
+    col1, _, col2 = st.columns([1.5, 1.5, 1])
 
     with col1:
         power_input = st.number_input(
@@ -271,7 +315,7 @@ if input_method == "W/kg" or (language == "Italiano" and input_method == "W/kg")
             max_value=15.0,
             value=st.session_state.get("power_input_wkg", 5.0),
             step=0.1,
-            disabled= not st.session_state.authenticated
+            disabled=not st.session_state.authenticated
         )
         st.session_state["power_input_wkg"] = power_input
         calculated_wkg = power_input
@@ -347,41 +391,9 @@ if st.session_state.calculated_vo2max:
         "## " + ("Results" if language == "English" else "Risultati")
     )
 
-    # Main metrics with enhanced styling
-    m2, m1,m3 = st.columns([1, 1.2, 1])
-
-
-    def metric_card(container, label, value):
-        """Clean, professional metric card"""
-        container.markdown(
-            f"""
-            <div style="
-                background: #f8f9fa;
-                border-left: 4px solid #2c3e50;
-                padding: 24px 16px;
-                border-radius: 6px;
-                text-align: center;
-            ">
-                <p style="margin: 0; font-size: 12px; color: #666; text-transform: uppercase; letter-spacing: 1px; font-weight: 600;">
-                    {label}
-                </p>
-                <p style="margin: 12px 0 0 0; font-size: 44px; font-weight: 600; color: #1a1a1a; line-height: 1;">
-                    {value:.1f}
-                </p>
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
-
-
-    metrics = [
-        ("VO2max (ml/min/kg)" if language == "English" else "VO2max (ml/min/kg)", vo2max),
-        ("Lower 95% CI" if language == "English" else "IC Inferiore 95%", ci_lower),
-        ("Upper 95% CI" if language == "English" else "IC Superiore 95%", ci_upper)
-    ]
-
-    for (container, label, value) in zip([m1, m2, m3], [m[0] for m in metrics], [m[1] for m in metrics]):
-        metric_card(container, label, value)
+    # result_col = st.columns([1])
+    # with result_col:
+    render_ci_range_bar(vo2max, ci_lower, ci_upper, language)
 
 # ─── Footer ───────────────────────────────────────────────────────
 st.markdown("---")
@@ -412,4 +424,3 @@ with fc3:
         </div>""",
         unsafe_allow_html=True
     )
-
