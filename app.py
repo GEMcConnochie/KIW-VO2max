@@ -48,23 +48,7 @@ page_labels = {
     "English": {"Calculator": "Calculator", "Instructions": "Instructions"},
     "Italiano": {"Calculator": "Calcolatore", "Instructions": "Istruzioni"},
 }
-st.markdown("""
-<style>
-.bounce-in-top {
-    animation: bounce-in-top 1.1s both;
-}
-@keyframes bounce-in-top {
-    0%   { transform: translateY(-500px); animation-timing-function: ease-in; opacity: 0; }
-    38%  { transform: translateY(0);      animation-timing-function: ease-out; opacity: 1; }
-    55%  { transform: translateY(-65px);  animation-timing-function: ease-in; }
-    72%  { transform: translateY(0);      animation-timing-function: ease-out; }
-    81%  { transform: translateY(-28px);  animation-timing-function: ease-in; }
-    90%  { transform: translateY(0);      animation-timing-function: ease-out; }
-    95%  { transform: translateY(-8px);   animation-timing-function: ease-in; }
-    100% { transform: translateY(0);      animation-timing-function: ease-out; }
-}
-</style>
-""", unsafe_allow_html=True)
+
 
 # ─── CI Range Bar Component ───────────────────────────────────────
 def render_ci_range_bar(vo2max, ci_lower, ci_upper, language="English"):
@@ -94,7 +78,7 @@ def render_ci_range_bar(vo2max, ci_lower, ci_upper, language="English"):
         band_legend = "Intervallo realistico (95%)"
 
     html = (
-        '<div class="bounce-in-top" style="background:#f8f9fa;border-left:4px solid #2c3e50;border-radius:8px;padding:28px 32px 24px 32px;margin-top:8px;">'
+        '<div style="background:#f8f9fa;border-left:4px solid #2c3e50;border-radius:8px;padding:28px 32px 24px 32px;margin-top:8px;">'
         f'<p style="margin:0 0 4px 0;font-size:20px;color:#888;text-transform:uppercase;letter-spacing:1.2px;font-weight:700;">{title}</p>'
         f'<p style="margin:0 0 6px 0;font-size:54px;font-weight:700;color:#1a1a1a;line-height:1;">{vo2max:.1f} <span style="font-size:18px;font-weight:400;color:#555;">ml/min/kg</span></p>'
         f'<p style="margin:0 0 20px 0;font-size:14px;color:#444;">{range_label}</p>'
@@ -311,7 +295,7 @@ input_method_options = (
     else ("W/kg", "Watt")
 )
 
-col_toggle_a, col_toggle_b = st.columns([3, 1])
+col_toggle_a, col_toggle_b = st.columns([1, 3])
 with col_toggle_a:
     input_method = st.radio(
         input_method_label,
@@ -320,93 +304,81 @@ with col_toggle_a:
         key="input_method_radio"
     )
 
-    # Input fields based on selected method
-    if input_method == "W/kg" or (language == "Italiano" and input_method == "W/kg"):
-        col1, _, col2 = st.columns([1.5, 1.5, 1])
+# Input fields based on selected method
+if input_method == "W/kg" or (language == "Italiano" and input_method == "W/kg"):
+    col1, _, col2 = st.columns([1.5, 1.5, 1])
 
-        with col1:
-            power_input = st.number_input(
-                "5-Minute Average Power (W/kg)" if language == "English" else "Potenza Media 5 Minuti (W/kg)",
-                min_value=0.1,
-                max_value=15.0,
-                value=st.session_state.get("power_input_wkg", 5.0),
-                step=0.1,
-                disabled=not st.session_state.authenticated
-            )
-            st.session_state["power_input_wkg"] = power_input
-            calculated_wkg = power_input
+    with col1:
+        power_input = st.number_input(
+            "5-Minute Average Power (W/kg)" if language == "English" else "Potenza Media 5 Minuti (W/kg)",
+            min_value=0.1,
+            max_value=15.0,
+            value=st.session_state.get("power_input_wkg", 5.0),
+            step=0.1,
+            disabled=not st.session_state.authenticated
+        )
+        st.session_state["power_input_wkg"] = power_input
+        calculated_wkg = power_input
 
-        with col1:
-            if st.button(
-                    "Calculate" if language == "English" else "Calcola",
-                    use_container_width=True,
-            ):
-                vo2max = 16.61 + 8.87 * calculated_wkg
-                ci_lower = vo2max * 0.97
-                ci_upper = vo2max * 1.03
+    with col1:
+        if st.button(
+                "Calculate" if language == "English" else "Calcola",
+                use_container_width=True,
+        ):
+            vo2max = 16.61 + 8.87 * calculated_wkg
+            ci_lower = vo2max * 0.97
+            ci_upper = vo2max * 1.03
 
-                st.session_state.calculated_vo2max = {
-                    "vo2max": vo2max,
-                    "ci_lower": ci_lower,
-                    "ci_upper": ci_upper,
-                }
+            st.session_state.calculated_vo2max = {
+                "vo2max": vo2max,
+                "ci_lower": ci_lower,
+                "ci_upper": ci_upper,
+            }
 
-    else:  # Watts + Weight input method
-        col1, col2, col3 = st.columns([1.5, 1.5, 1])
+else:  # Watts + Weight input method
+    col1, col2, col3 = st.columns([1.5, 1.5, 1])
 
-        with col1:
-            watts = st.number_input(
-                "5-Minute Average Power (Watts)" if language == "English" else "Potenza Media 5 Minuti (Watt)",
-                min_value=10,
-                max_value=2000,
-                value=st.session_state.get("power_input_watts", 400),
-                step=10,
-                disabled=not st.session_state.authenticated
-            )
-            st.session_state["power_input_watts"] = watts
+    with col1:
+        watts = st.number_input(
+            "5-Minute Average Power (Watts)" if language == "English" else "Potenza Media 5 Minuti (Watt)",
+            min_value=10,
+            max_value=2000,
+            value=st.session_state.get("power_input_watts", 400),
+            step=10,
+            disabled=not st.session_state.authenticated
+        )
+        st.session_state["power_input_watts"] = watts
 
-        with col2:
-            weight = st.number_input(
-                "Body Weight (kg)" if language == "English" else "Peso Corporeo (kg)",
-                min_value=30.0,
-                max_value=150.0,
-                value=st.session_state.get("body_weight", 70.0),
-                step=0.1,
-                disabled=not st.session_state.authenticated
-            )
-            st.session_state["body_weight"] = weight
+    with col2:
+        weight = st.number_input(
+            "Body Weight (kg)" if language == "English" else "Peso Corporeo (kg)",
+            min_value=30.0,
+            max_value=150.0,
+            value=st.session_state.get("body_weight", 70.0),
+            step=0.1,
+            disabled=not st.session_state.authenticated
+        )
+        st.session_state["body_weight"] = weight
 
-        with col1:
-            if st.button(
-                    "Calculate" if language == "English" else "Calcola",
-                    use_container_width=True,
-            ):
-                calculated_wkg = watts / weight
-                vo2max = 16.61 + 8.87 * calculated_wkg
-                ci_lower = vo2max * 0.97
-                ci_upper = vo2max * 1.03
+    with col1:
+        if st.button(
+                "Calculate" if language == "English" else "Calcola",
+                use_container_width=True,
+        ):
+            calculated_wkg = watts / weight
+            vo2max = 16.61 + 8.87 * calculated_wkg
+            ci_lower = vo2max * 0.97
+            ci_upper = vo2max * 1.03
 
-                st.session_state.calculated_vo2max = {
-                    "vo2max": vo2max,
-                    "ci_lower": ci_lower,
-                    "ci_upper": ci_upper,
-                    "watts": watts,
-                    "weight": weight,
-                    "wkg": calculated_wkg,
-                }
-with col_toggle_b:
-    import streamlit.components.v1 as components
+            st.session_state.calculated_vo2max = {
+                "vo2max": vo2max,
+                "ci_lower": ci_lower,
+                "ci_upper": ci_upper,
+                "watts": watts,
+                "weight": weight,
+                "wkg": calculated_wkg,
+            }
 
-    components.html("""
-		<script src="https://unpkg.com/@lottiefiles/dotlottie-wc@0.9.10/dist/dotlottie-wc.js" type="module"></script>
-
-		<dotlottie-wc
-		  src="https://lottie.host/1d42351f-b5d6-4269-86e0-262c5e7b1dab/4KcSKd9NkS.lottie"
-		  style="width: 300px; height: 300px"
-		  autoplay
-		  loop
-		></dotlottie-wc>
-		""", height=300)
 # ─── Results Display ──────────────────────────────────────────────
 if st.session_state.calculated_vo2max:
     results = st.session_state.calculated_vo2max
